@@ -6,3 +6,4 @@ var some_var 'okay, let it be'
 out &some_var
 out &some_not_existing_var
 out "wow, work continued!"
+

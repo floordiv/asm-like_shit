@@ -1,0 +1,3 @@
+var add_result 0    // this is a comment
+add add_result 5 5  // this is one more comment
+out &add_result     // wow, code is fully commented

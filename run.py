@@ -3,7 +3,7 @@ import sys
 import shlex
 
 
-EXIT_ON_ERROR = False
+IGNORE_ERRORS = False
 
 
 class Namespace:
@@ -21,6 +21,10 @@ class Namespace:
 
 
 def line_parser(line):
+    if line.replace(' ', '') == '' or line.startswith('//'):
+        # an empty line
+        return
+
     line = shlex.split(line)
 
     func = line[0]
@@ -28,6 +32,15 @@ def line_parser(line):
     kwargs = {}
 
     for index, arg in enumerate(args):
+        # if ' ' not in arg - whether // is not in the text
+        if '//' in arg and ' ' not in arg:  # remove comment
+            arg = arg.split('//')[0]
+            args[index] = arg
+            del args[index:]    # delete everything after comment beginning
+
+        if arg == '':
+            continue
+
         if '=' in arg:  # this is a kwarg
             var, *val = arg.split('=')
 
@@ -37,10 +50,7 @@ def line_parser(line):
     return func, args, kwargs
 
 
-if __name__ == '__main__':
-    args = sys.argv[1:]
-    namespace = Namespace()
-
+def start_interpreting(namespace, args):
     if len(args) == 0:
         print('Please, type a name of the file')
 
@@ -51,10 +61,15 @@ if __name__ == '__main__':
     with open(file, 'r') as source:
         source = source.read().splitlines()
 
-    for line in source:
-        func, args, kwargs = line_parser(line)
+    for index, line in enumerate(source):
+        line = line_parser(line)
 
-        response = api.__dict__[func](namespace, *args, **kwargs)
+        if line is None:
+            continue
+
+        func, args, kwargs = line
+
+        response = str(api.__dict__[func](namespace, *args, **kwargs))
 
         if response is not None:
             if response.startswith('add_var:'):
@@ -64,7 +79,12 @@ if __name__ == '__main__':
             elif response.startswith('error:'):
                 err_text = ':'.join(response.split(':')[1:])
 
-                print('ERROR:', err_text)
+                print('ERROR on line {line}: {err_text}'.format(line=index + 1, err_text=err_text))
 
-                if EXIT_ON_ERROR:
+                if not IGNORE_ERRORS:
                     sys.exit()
+
+
+if __name__ == '__main__':
+    start_interpreting(Namespace(), sys.argv[1:])
+
