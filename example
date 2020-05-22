@@ -1,6 +1,6 @@
 out "hello, world" end=""
-out "!"
-inp "enter something here: " to_var=text
+out "!"     // put ! in the previous line - add it to the text below
+inp "enter something here: " to_var=text    // put text from the input to the variable
 out 'you entered:' &text
 var some_var 'okay, let it be'
 out &some_var

@@ -49,13 +49,13 @@ def add(namespace, to_var, num1, num2):
     return result
 
 
-def seq(namespace, *seq):
-    seq = ' '.join(seq)
+def seq(namespace, *sequence):
+    sequence = ' '.join(sequence)
 
-    if any([i in string.ascii_letters.replace('e', '') for i in seq]):
+    if any([i in string.ascii_letters.replace('e', '') for i in sequence]):
         return 'error:bad sequence'
 
     try:
-        return eval(seq)
+        return eval(sequence)
     except Exception as exc:
         return 'error:bad sequence: ' + str(exc)

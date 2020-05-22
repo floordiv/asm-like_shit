@@ -27,6 +27,9 @@ def line_parser(line):
 
     line = shlex.split(line)
 
+    if '//' in line:
+        line = line[:line.index('//')]
+
     func = line[0]
     args = line[1:]
     kwargs = {}
@@ -68,6 +71,8 @@ def start_interpreting(namespace, args):
             continue
 
         func, args, kwargs = line
+
+        # print(args, kwargs)
 
         response = str(api.__dict__[func](namespace, *args, **kwargs))
 
