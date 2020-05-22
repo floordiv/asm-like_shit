@@ -3,6 +3,9 @@ import sys
 import shlex
 
 
+EXIT_ON_ERROR = False
+
+
 class Namespace:
     def __init__(self):
         self.namespace = {}
@@ -58,3 +61,10 @@ if __name__ == '__main__':
                 _, var, val = response.split(':')
 
                 namespace.add(var, val)
+            elif response.startswith('error:'):
+                err_text = ':'.join(response.split(':')[1:])
+
+                print('ERROR:', err_text)
+
+                if EXIT_ON_ERROR:
+                    sys.exit()

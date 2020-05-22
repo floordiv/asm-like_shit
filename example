@@ -4,3 +4,5 @@ inp "enter something here: " to_var=text
 out 'you entered:' &text
 var some_var 'okay, let it be'
 out &some_var
+out &some_not_existing_var
+out "wow, work continued!"

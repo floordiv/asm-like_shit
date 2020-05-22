@@ -3,7 +3,12 @@ def out(namespace, *text, **kwargs):
 
     for index, element in enumerate(text):
         if element.startswith('&'):
-            text[index] = namespace.get(element[1:])
+            variable = namespace.get(element[1:])
+
+            if variable is None:
+                return 'error:variable not found'
+
+            text[index] = variable
 
     print(*text, **kwargs)
 
