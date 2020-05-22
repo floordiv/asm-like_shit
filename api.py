@@ -6,7 +6,7 @@ def out(namespace, *text, **kwargs):
             variable = namespace.get(element[1:])
 
             if variable is None:
-                return 'error:variable not found'
+                return 'error:variable not found: ' + element[1:]
 
             text[index] = variable
 
