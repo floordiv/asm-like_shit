@@ -31,7 +31,7 @@ def inp(to_var=None, text=None, line='null', use_namespace=namespace):
     elif text is None:
         text = to_var
     else:
-        to_var = to_var[1:]
+        to_var = to_var
 
     text = input(text)
 
@@ -42,7 +42,7 @@ def inp(to_var=None, text=None, line='null', use_namespace=namespace):
 
 
 def var(varname, *content, line='null', use_namespace=namespace):
-    use_namespace.put(varname[1:], ' '.join(content))
+    use_namespace.put(varname, ' '.join(content))
 
 
 def call(func, args=(), kwargs=None, line='null', use_namespace=namespace):

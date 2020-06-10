@@ -13,9 +13,11 @@ def parse_line(line, line_index='null', use_namespace=namespace):
     if line.strip() == '':
         return
 
-    args, kwargs = parse_args(line, line_index, use_namespace=use_namespace)
+    func, *line = line.split()
+    func = use_namespace.get(func)
+    line = ' '.join(line)
 
-    func, *args = args
+    args, kwargs = parse_args(line, line_index, use_namespace=use_namespace)
 
     return api.call(func, args, kwargs, line_index, use_namespace)
 
@@ -45,7 +47,7 @@ def parse_lines(iter_obj, use_namespace=namespace):
             func_body_temp['func_ranges'][0] = index
 
             new_func_name = line.split()[0][1:]
-            args, kwargs = parse_args(line[len(new_func_name) + 1:], index, False)
+            args, kwargs = parse_args(line[len(new_func_name) + 2:], index, False)
 
             func_body_temp['name'] = new_func_name
             func_body_temp['args'] = args
@@ -95,10 +97,10 @@ def parse_args(args, line='null', replace_variables=True, use_namespace=namespac
 
 
 def checkvar(var, on_line, use_namespace=namespace):
-    if var[0] in ['"', '&'] or var.isdigit():
-        return var
+    if var[0] == '&':
+        return use_namespace.get(var[1:], True, on_line)
 
-    return use_namespace.get(var, True, on_line)
+    return var
 
 
 def split_by_quotes(line, on_line='null'):

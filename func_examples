@@ -1,6 +1,7 @@
 .func arg1 arg2
-    out arg1 arg2
+    out &arg1 &arg2
+    in text "hello, bra? "
+    out "you entered:" &text
 end
 
 func "ok" "bro"
-func "mamma mia" "wata fuck is this"

@@ -28,7 +28,6 @@ class Namespace:
         try:
             return self.variables[var]
         except KeyError:
-            print('wat')
             exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"', line=line)
 
     def put(self, var, val):
@@ -69,10 +68,10 @@ class LocalNamespace:
         except KeyError:
             exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"', line=line)
 
-    def put(self, var, val, line='null'):
+    def put(self, var, val):
         self.variables[var] = val
 
-    def rm(self, var, line='null'):
+    def rm(self, var):
         try:
             del self.variables[var]
         except KeyError:
