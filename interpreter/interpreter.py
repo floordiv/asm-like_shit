@@ -12,8 +12,7 @@ namespace.load_variables(api.get_functions())
 
 def run(file):
     with open(file) as source:
-        for index, line in enumerate(source, start=1):
-            parse.parse_line(line, line_index=index)
+        run_lines(source)
 
 
 def run_line(line):
