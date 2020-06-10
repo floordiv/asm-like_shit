@@ -1,0 +1,6 @@
+.func arg1 arg2
+    out arg1 arg2
+end
+
+func "ok" "bro"
+func "mamma mia" "wata fuck is this"

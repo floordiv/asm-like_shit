@@ -20,8 +20,7 @@ def run_line(line):
 
 
 def run_lines(lines):
-    for index, line in enumerate(lines, start=1):
-        parse.parse_line(line, line_index=index)
+    parse.parse_lines(lines)
 
 
 def exit_on_err(value=True):

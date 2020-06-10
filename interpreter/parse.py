@@ -1,4 +1,5 @@
 import api
+import function
 import exception
 import namespace
 
@@ -6,15 +7,55 @@ import namespace
 namespace = namespace.Namespace()
 
 
-def parse_line(line, line_index='null'):
-    args, kwargs = parse_args(line, line_index)
+def parse_line(line, line_index='null', use_namespace=namespace):
+    line = remove_comments(line).strip()
+
+    if line.strip() == '':
+        return
+
+    args, kwargs = parse_args(line, line_index, use_namespace=use_namespace)
 
     func, *args = args
 
-    return api.call(func, args, kwargs, line_index)
+    return api.call(func, args, kwargs, line_index, use_namespace)
 
 
-def parse_args(args, line='null'):
+def parse_lines(iter_obj, use_namespace=namespace):
+    function_initializing = False
+    func_body_temp = {'name': None, 'args': (), 'kwargs': {}, 'body': [], 'func_ranges': ['null', 'null']}
+
+    for index, line in enumerate(iter_obj, start=1):
+        if line.strip() == '':
+            continue
+
+        if line.strip() == 'end':
+            function_initializing = False
+            func_body_temp['func_ranges'][1] = index
+
+            newfunc = function.Function(*func_body_temp.values(), api.get_functions())
+            use_namespace.put(func_body_temp['name'], newfunc)
+
+            func_body_temp = {'name': None, 'args': (), 'kwargs': {}, 'body': [], 'func_ranges': ['null', 'null']}
+
+        elif function_initializing:
+            func_body_temp['body'] += [line]
+
+        elif line[0] == '.':  # function init
+            function_initializing = True
+            func_body_temp['func_ranges'][0] = index
+
+            new_func_name = line.split()[0][1:]
+            args, kwargs = parse_args(line[len(new_func_name) + 1:], index, False)
+
+            func_body_temp['name'] = new_func_name
+            func_body_temp['args'] = args
+            func_body_temp['kwargs'] = kwargs
+
+        else:
+            parse_line(line, index, use_namespace)
+
+
+def parse_args(args, line='null', replace_variables=True, use_namespace=namespace):
     split_args = split(args)
 
     args, kwargs = [], {}
@@ -23,7 +64,8 @@ def parse_args(args, line='null'):
 
     for arg in split_args:
         if next_arg_is_value:
-            arg = checkvar(arg, line)
+            if replace_variables:
+                arg = checkvar(arg, line, use_namespace)
 
             arg = arg.strip('"')
 
@@ -39,22 +81,24 @@ def parse_args(args, line='null'):
             elif '=' in arg:
                 var, *val = arg.split('=')
 
-                val = checkvar(val[0], line)
+                if replace_variables:
+                    val = checkvar(val[0], line, use_namespace)
 
                 kwargs[var] = val
             else:
-                arg = checkvar(arg, line)
+                if replace_variables:
+                    arg = checkvar(arg, line, use_namespace)
 
                 args += [arg]
 
     return args, kwargs
 
 
-def checkvar(var, on_line):
+def checkvar(var, on_line, use_namespace=namespace):
     if var[0] in ['"', '&'] or var.isdigit():
         return var
 
-    return namespace.get(var, True, on_line)
+    return use_namespace.get(var, True, on_line)
 
 
 def split_by_quotes(line, on_line='null'):
