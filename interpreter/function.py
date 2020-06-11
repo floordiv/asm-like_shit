@@ -6,6 +6,10 @@ namespace = namespace.Namespace()
 
 
 class Function:
+    """
+    This class is a basic class for in-code functions
+    """
+
     def __init__(self, name, args, kwargs, funcbody, lines_range=('null', 'null'), api_functions=None):
         if api_functions is None:
             api_functions = {}
@@ -22,8 +26,6 @@ class Function:
         self.funcbody = list(zip(self.lines_range, funcbody))
 
     def __call__(self, *args, **kwargs):
-        args = dict(zip(self.args, args))
-
         namespace.create_space(self.name)
 
         for line_index, line in self.funcbody:

@@ -4,4 +4,8 @@
     out "you entered:" &text
 end
 
+.another_func arg1 arg2="ok"
+   out &arg1 &arg2
+end
+
 func "ok" "bro"

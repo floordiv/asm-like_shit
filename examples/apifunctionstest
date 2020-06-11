@@ -1,4 +1,4 @@
-imm true
+imm true    ; to avoid stopping tests because of an exception
 
 out "out"
 inp
