@@ -14,7 +14,12 @@ def parse_line(line, line_index='null', use_namespace=namespace):
         return
 
     func, *line = line.split()
+
     func = use_namespace.get(func)
+
+    if func is None:
+        return
+
     line = ' '.join(line)
 
     args, kwargs = parse_args(line, line_index, use_namespace=use_namespace)

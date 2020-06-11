@@ -19,8 +19,13 @@ try:
         line = input('&> ')
 
         begin = time.time()
-        print(lang.run_line(line))
 
-        print('Time went:', time.time() - begin, 'secs')
+        result = lang.run_line(line)
+
+        if result is not None:
+            print(result)
+
+        if '--benchmark' in sys.argv:
+            print('Time went:', time.time() - begin, 'secs')
 except KeyboardInterrupt:
     lang.run_line('exit reason="user aborted"')
