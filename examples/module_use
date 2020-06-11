@@ -1,0 +1,5 @@
+use test    ; import module test
+
+test:hello_world    ; call some functions from the module test
+test:bye_world
+test:unhello        ; test aliases

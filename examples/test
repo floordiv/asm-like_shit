@@ -1,0 +1,11 @@
+.hello_world
+    out "hello, world!"
+end
+
+.bye_world
+    out "bye, world!"
+end
+
+var print &out
+
+print "aliases works!"

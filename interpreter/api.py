@@ -20,6 +20,8 @@ def out(*text, line='null', **kwargs):
     if 'use_namespace' in kwargs:
         del kwargs['use_namespace']
 
+    text = ''.join(map(str, text))
+
     print(''.join(text), **kwargs)
 
     # return ' '.join(text)
@@ -42,7 +44,10 @@ def inp(to_var=None, text=None, line='null', use_namespace=namespace):
 
 
 def var(varname, *content, line='null', use_namespace=namespace):
-    use_namespace.put(varname, ' '.join(content))
+    if len(content) == 1:
+        content = content[0]
+
+    use_namespace.put(varname, content)
 
 
 def call(func, args=(), kwargs=None, line='null', use_namespace=namespace):

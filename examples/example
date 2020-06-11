@@ -1,8 +1,8 @@
 out "hello, world" end=""
 out "!"     ; put ! in the previous line - add it to the text below
-inp &text "enter something here: "    ; put text from the input to the variable
-out "you entered:" text
-var &some_var "smvar"
+inp text "enter something here: "    ; put text from the input to the variable
+out "you entered:" &text
+var some_var "smvar"
 out "Some variable:" some_var
 add & 5 5 5
 out &

@@ -2,7 +2,7 @@ import parse
 import namespace
 
 
-global_namespace = namespace.Namespace()
+namespace = namespace.Namespace()
 
 
 class Function:
@@ -24,9 +24,7 @@ class Function:
     def __call__(self, *args, **kwargs):
         args = dict(zip(self.args, args))
 
-        local_namespace = namespace.LocalNamespace({**args, **kwargs, **self.api_functions})
+        namespace.create_space(self.name)
 
         for line_index, line in self.funcbody:
-            parse.parse_line(line, line_index, local_namespace)
-
-        del local_namespace
+            parse.parse_line(line, line_index, self.name)

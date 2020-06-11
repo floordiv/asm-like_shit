@@ -1,3 +1,5 @@
+import os
+
 import api
 import function
 import exception
@@ -7,7 +9,7 @@ import namespace
 namespace = namespace.Namespace()
 
 
-def parse_line(line, line_index='null', use_namespace=namespace):
+def parse_line(line, line_index='null', to_space='main'):
     line = remove_comments(line).strip()
 
     if line.strip() == '':
@@ -15,32 +17,42 @@ def parse_line(line, line_index='null', use_namespace=namespace):
 
     func, *line = line.split()
 
-    func = use_namespace.get(func)
+    if func == 'use':
+        module_name = line[0]
+
+        load_module(module_name)
+
+        return
+
+    func = namespace.get(func, from_space=to_space)
 
     if func is None:
         return
 
     line = ' '.join(line)
 
-    args, kwargs = parse_args(line, line_index, use_namespace=use_namespace)
+    args, kwargs = parse_args(line, line_index, from_space=to_space)
 
-    return api.call(func, args, kwargs, line_index, use_namespace)
+    return api.call(func, args, kwargs, line_index)
 
 
-def parse_lines(iter_obj, use_namespace=namespace):
+def parse_lines(iter_obj, to_space='main'):
     function_initializing = False
     func_body_temp = {'name': None, 'args': (), 'kwargs': {}, 'body': [], 'func_ranges': ['null', 'null']}
 
     for index, line in enumerate(iter_obj, start=1):
-        if line.strip() == '':
+        line = line.strip()
+
+        if line == '':
             continue
 
-        if line.strip() == 'end':
+        if line == 'end':
             function_initializing = False
             func_body_temp['func_ranges'][1] = index
 
             newfunc = function.Function(*func_body_temp.values(), api.get_functions())
-            use_namespace.put(func_body_temp['name'], newfunc)
+
+            namespace.put(func_body_temp['name'], newfunc, to_space=to_space)
 
             func_body_temp = {'name': None, 'args': (), 'kwargs': {}, 'body': [], 'func_ranges': ['null', 'null']}
 
@@ -59,10 +71,10 @@ def parse_lines(iter_obj, use_namespace=namespace):
             func_body_temp['kwargs'] = kwargs
 
         else:
-            parse_line(line, index, use_namespace)
+            parse_line(line, index, to_space)
 
 
-def parse_args(args, line='null', replace_variables=True, use_namespace=namespace):
+def parse_args(args, line='null', replace_variables=True, from_space='main'):
     split_args = split(args)
 
     args, kwargs = [], {}
@@ -72,7 +84,7 @@ def parse_args(args, line='null', replace_variables=True, use_namespace=namespac
     for arg in split_args:
         if next_arg_is_value:
             if replace_variables:
-                arg = checkvar(arg, line, use_namespace)
+                arg = checkvar(arg, line, from_space)
 
             arg = arg.strip('"')
 
@@ -89,21 +101,34 @@ def parse_args(args, line='null', replace_variables=True, use_namespace=namespac
                 var, *val = arg.split('=')
 
                 if replace_variables:
-                    val = checkvar(val[0], line, use_namespace)
+                    val = checkvar(val[0], line, from_space)
 
                 kwargs[var] = val
             else:
                 if replace_variables:
-                    arg = checkvar(arg, line, use_namespace)
+                    arg = checkvar(arg, line, from_space)
 
                 args += [arg]
 
     return args, kwargs
 
 
-def checkvar(var, on_line, use_namespace=namespace):
+def load_module(name, on_line='null'):
+    paths = ['modules/', './', 'examples/']
+
+    for path in paths:
+        if name in os.listdir(path):
+            with open(path + name) as module:
+                parse_lines(module, to_space=name)
+
+            return
+
+    exception.throw('module_not_found', f'module not found: {name}', line=on_line)
+
+
+def checkvar(var, on_line, from_space='main'):
     if var[0] == '&':
-        return use_namespace.get(var[1:], True, on_line)
+        return namespace.get(var[1:], True, on_line, from_space=from_space)
 
     return var
 

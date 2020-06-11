@@ -14,10 +14,10 @@ def singleton(class_):
 
 
 def var_from(var):
-    var = var.split('.')
+    var = var.split(':')
 
     if len(var) == 1:
-        return 'global', var[0]
+        return 'main', var[0]
     return var
 
 
@@ -27,23 +27,30 @@ class Namespace:
         if init_vars is None:
             init_vars = {}
 
-        self.variables = {'global': {**init_vars, **kwargs}}
+        self.variables = {'main': {**init_vars, **kwargs}}
 
-    def get(self, var, throw=True, line='null'):
-        from_space, var = var_from(var)
+    def get(self, var, throw=True, line='null', from_space=None):
+        var_from_space, var = var_from(var)
 
-        if not throw:
-            return self.variables[from_space].get(var)
+        if from_space is not None:
+            var_from_space = from_space
 
         try:
-            return self.variables[from_space][var]
+            return self.variables[var_from_space][var]
         except KeyError:
-            exception.throw('variable_not_found', f'variable not found: {from_space}.{var}', line=line)
+            if throw:
+                exception.throw('variable_not_found', f'variable not found: {var_from_space}:{var}', line=line)
 
-    def put(self, var, val, to_space='global'):
-        from_space, var = var_from(var)
+    def put(self, var, val, to_space=None):
+        space, var = var_from(var)
 
-        self.variables[to_space][var] = val
+        if to_space is not None:
+            space = to_space
+
+        if space not in self.variables:
+            self.create_space(space)
+
+        self.variables[space][var] = val
 
     def rm(self, var, line='null'):
         from_space, var = var_from(var)
@@ -51,57 +58,16 @@ class Namespace:
         try:
             del self.variables[from_space][var]
         except KeyError:
-            exception.throw('variable_not_found', f'variable not found: {from_space}.{var}', line=line)
+            exception.throw('variable_not_found', f'variable not found: {from_space}:{var}', line=line)
 
-    def load_variables(self, variables, to_space='global'):
+    def load_variables(self, variables, to_space='main'):
         self.variables[to_space] = {**self.variables, **variables}
 
-    def get_variables(self, from_space='global'):
+    def get_variables(self, from_space='main'):
         return self.variables[from_space]
 
-    def __contains__(self, item):
-        return item in self.variables
-
-    def __str__(self):
-        return '\n'.join([f'{a}: {b}' for a, b in self.variables.items()])
-
-
-class LocalNamespace:
-    def __init__(self, init_vars=None, **kwargs):
-        if init_vars is None:
-            init_vars = {}
-
-        self.variables = {'global': {**init_vars, **kwargs}}
-
-    def get(self, var, throw=True, line='null'):
-        from_space, var = var_from(var)
-
-        if not throw:
-            return self.variables[from_space].get(var)
-
-        try:
-            return self.variables[from_space][var]
-        except KeyError:
-            exception.throw('variable_not_found', f'variable not found: {from_space}.{var}', line=line)
-
-    def put(self, var, val, to_space='global'):
-        from_space, var = var_from(var)
-
-        self.variables[to_space][var] = val
-
-    def rm(self, var, line='null'):
-        from_space, var = var_from(var)
-
-        try:
-            del self.variables[from_space][var]
-        except KeyError:
-            exception.throw('variable_not_found', f'variable not found: {from_space}.{var}', line=line)
-
-    def load_variables(self, variables, to_space='global'):
-        self.variables[to_space] = {**self.variables, **variables}
-
-    def get_variables(self, from_space='global'):
-        return self.variables[from_space]
+    def create_space(self, newspace):
+        self.variables[newspace] = self.variables['main']
 
     def __contains__(self, item):
         return item in self.variables
