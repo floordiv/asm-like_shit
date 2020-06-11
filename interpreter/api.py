@@ -20,7 +20,7 @@ def out(*text, line='null', **kwargs):
     if 'use_namespace' in kwargs:
         del kwargs['use_namespace']
 
-    print(*text, **kwargs)
+    print(''.join(text), **kwargs)
 
     # return ' '.join(text)
 
