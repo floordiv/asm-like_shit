@@ -13,37 +13,51 @@ def singleton(class_):
     return getinstance
 
 
+def var_from(var):
+    var = var.split('.')
+
+    if len(var) == 1:
+        return 'global', var[0]
+    return var
+
+
 @singleton
 class Namespace:
     def __init__(self, init_vars=None, **kwargs):
         if init_vars is None:
             init_vars = {}
 
-        self.variables = {**init_vars, **kwargs}
+        self.variables = {'global': {**init_vars, **kwargs}}
 
     def get(self, var, throw=True, line='null'):
+        from_space, var = var_from(var)
+
         if not throw:
-            return self.variables.get(var)
+            return self.variables[from_space].get(var)
 
         try:
-            return self.variables[var]
+            return self.variables[from_space][var]
         except KeyError:
             exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"', line=line)
 
-    def put(self, var, val):
-        self.variables[var] = val
+    def put(self, var, val, to_space='global'):
+        from_space, var = var_from(var)
+
+        self.variables[to_space][var] = val
 
     def rm(self, var, line='null'):
+        from_space, var = var_from(var)
+
         try:
-            del self.variables[var]
+            del self.variables[from_space][var]
         except KeyError:
             exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"', line=line)
 
-    def load_variables(self, variables):
-        self.variables = {**self.variables, **variables}
+    def load_variables(self, variables, to_space='global'):
+        self.variables[to_space] = {**self.variables, **variables}
 
-    def get_variables(self):
-        return self.variables
+    def get_variables(self, from_space='global'):
+        return self.variables[from_space]
 
     def __contains__(self, item):
         return item in self.variables
@@ -57,28 +71,37 @@ class LocalNamespace:
         if init_vars is None:
             init_vars = {}
 
-        self.variables = {**init_vars, **kwargs}
+        self.variables = {'global': {**init_vars, **kwargs}}
 
     def get(self, var, throw=True, line='null'):
+        from_space, var = var_from(var)
+
         if not throw:
-            return self.variables.get(var)
+            return self.variables[from_space].get(var)
 
         try:
-            return self.variables[var]
+            return self.variables[from_space][var]
         except KeyError:
             exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"', line=line)
 
-    def put(self, var, val):
-        self.variables[var] = val
+    def put(self, var, val, to_space='global'):
+        from_space, var = var_from(var)
 
-    def rm(self, var):
+        self.variables[to_space][var] = val
+
+    def rm(self, var, line='null'):
+        from_space, var = var_from(var)
+
         try:
-            del self.variables[var]
+            del self.variables[from_space][var]
         except KeyError:
-            exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"')
+            exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"', line=line)
 
-    def load_variables(self, variables):
-        self.variables = {**self.variables, **variables}
+    def load_variables(self, variables, to_space='global'):
+        self.variables[to_space] = {**self.variables, **variables}
+
+    def get_variables(self, from_space='global'):
+        return self.variables[from_space]
 
     def __contains__(self, item):
         return item in self.variables
