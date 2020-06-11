@@ -24,6 +24,9 @@ def parse_line(line, line_index='null', space='main'):
 
         return
 
+    if len(func.split(':')) > 1:
+        space, func = func.split(':')
+
     func = namespace.get(func, space=space)
 
     if func is None:
@@ -33,7 +36,7 @@ def parse_line(line, line_index='null', space='main'):
 
     args, kwargs = parse_args(line, line_index, space=space)
 
-    return api.call(func, args, kwargs, line_index)
+    return api.call(func, args, kwargs, line_index, space)
 
 
 def parse_lines(iter_obj, space='main'):
@@ -41,7 +44,7 @@ def parse_lines(iter_obj, space='main'):
     func_body_temp = {'name': None, 'args': (), 'kwargs': {}, 'body': [], 'func_ranges': ['null', 'null']}
 
     for index, line in enumerate(iter_obj, start=1):
-        line = line.strip()
+        line = remove_comments(line).strip()
 
         if line == '':
             continue

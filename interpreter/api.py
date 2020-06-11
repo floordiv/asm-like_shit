@@ -17,14 +17,17 @@ bool_vars = {
 
 
 def out(*text, line='null', **kwargs):
+    spaces = ''
+
     if 'space' in kwargs:
         del kwargs['space']
+    if 'spaces' in kwargs:
+        spaces = kwargs['spaces']
+        del kwargs['spaces']
 
-    text = ''.join(map(str, text))
+    text = spaces.join(map(str, text))
 
-    print(''.join(text), **kwargs)
-
-    # return ' '.join(text)
+    print(text, **kwargs)
 
 
 def inp(to_var=None, text=None, line='null', space='main'):

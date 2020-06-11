@@ -1,11 +1,13 @@
 .func arg1 arg2
-    out &arg1 &arg2
+    out &arg1 &arg2 spaces=" "
     in text "hello, bra? "
-    out "you entered:" &text
+    out "you entered: " &text
 end
 
 .another_func arg1 arg2="ok"
-   out &arg1 &arg2
+   out &arg1 &arg2 spaces=" "
 end
 
 func "ok" "bro"
+
+another_func "why" arg2="bro"

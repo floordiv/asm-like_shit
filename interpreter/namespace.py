@@ -1,5 +1,7 @@
 import exception
 
+from pprint import pprint
+
 
 def singleton(class_):
     instances = {}
@@ -34,6 +36,9 @@ class Namespace:
             return self.variables[space][var]
         except KeyError:
             if throw:
+                # pprint(self.variables)
+                # print(var)
+
                 exception.throw('variable_not_found', f'variable not found: {space}:{var}', line=line)
 
     def put(self, var, val, space='main'):
@@ -42,14 +47,15 @@ class Namespace:
 
         self.variables[space][var] = val
 
-    def rm(self, var, line='null', space='main'):
+    def rm(self, var, line='null', space='main', throw=True):
         try:
             del self.variables[space][var]
         except KeyError:
-            exception.throw('variable_not_found', f'variable not found: {space}:{var}', line=line)
+            if throw:
+                exception.throw('variable_not_found', f'variable not found: {space}:{var}', line=line)
 
     def load_variables(self, variables, space='main'):
-        self.variables[space] = {**self.variables, **variables}
+        self.variables[space] = {**self.variables[space], **variables}
 
     def get_variables(self, space='main'):
         return self.variables[space]

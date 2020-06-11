@@ -7,5 +7,6 @@ end
 end
 
 var print &out
+var unhello &bye_world
 
 print "aliases works!"
