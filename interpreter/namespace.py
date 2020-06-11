@@ -38,7 +38,7 @@ class Namespace:
         try:
             return self.variables[from_space][var]
         except KeyError:
-            exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"', line=line)
+            exception.throw('variable_not_found', f'variable not found: {from_space}.{var}', line=line)
 
     def put(self, var, val, to_space='global'):
         from_space, var = var_from(var)
@@ -51,7 +51,7 @@ class Namespace:
         try:
             del self.variables[from_space][var]
         except KeyError:
-            exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"', line=line)
+            exception.throw('variable_not_found', f'variable not found: {from_space}.{var}', line=line)
 
     def load_variables(self, variables, to_space='global'):
         self.variables[to_space] = {**self.variables, **variables}
@@ -82,7 +82,7 @@ class LocalNamespace:
         try:
             return self.variables[from_space][var]
         except KeyError:
-            exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"', line=line)
+            exception.throw('variable_not_found', f'variable not found: {from_space}.{var}', line=line)
 
     def put(self, var, val, to_space='global'):
         from_space, var = var_from(var)
@@ -95,7 +95,7 @@ class LocalNamespace:
         try:
             del self.variables[from_space][var]
         except KeyError:
-            exception.throw('variable_not_found', 'variable not found: "' + str(var) + '"', line=line)
+            exception.throw('variable_not_found', f'variable not found: {from_space}.{var}', line=line)
 
     def load_variables(self, variables, to_space='global'):
         self.variables[to_space] = {**self.variables, **variables}
