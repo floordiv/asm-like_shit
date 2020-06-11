@@ -9,7 +9,7 @@ import namespace
 namespace = namespace.Namespace()
 
 
-def parse_line(line, line_index='null', to_space='main'):
+def parse_line(line, line_index='null', space='main'):
     line = remove_comments(line).strip()
 
     if line.strip() == '':
@@ -24,19 +24,19 @@ def parse_line(line, line_index='null', to_space='main'):
 
         return
 
-    func = namespace.get(func, from_space=to_space)
+    func = namespace.get(func, space=space)
 
     if func is None:
         return
 
     line = ' '.join(line)
 
-    args, kwargs = parse_args(line, line_index, from_space=to_space)
+    args, kwargs = parse_args(line, line_index, space=space)
 
     return api.call(func, args, kwargs, line_index)
 
 
-def parse_lines(iter_obj, to_space='main'):
+def parse_lines(iter_obj, space='main'):
     function_initializing = False
     func_body_temp = {'name': None, 'args': (), 'kwargs': {}, 'body': [], 'func_ranges': ['null', 'null']}
 
@@ -52,7 +52,7 @@ def parse_lines(iter_obj, to_space='main'):
 
             newfunc = function.Function(*func_body_temp.values(), api.get_functions())
 
-            namespace.put(func_body_temp['name'], newfunc, to_space=to_space)
+            namespace.put(func_body_temp['name'], newfunc, space=space)
 
             func_body_temp = {'name': None, 'args': (), 'kwargs': {}, 'body': [], 'func_ranges': ['null', 'null']}
 
@@ -71,10 +71,10 @@ def parse_lines(iter_obj, to_space='main'):
             func_body_temp['kwargs'] = kwargs
 
         else:
-            parse_line(line, index, to_space)
+            parse_line(line, index, space)
 
 
-def parse_args(args, line='null', replace_variables=True, from_space='main'):
+def parse_args(args, line='null', replace_variables=True, space='main'):
     split_args = split(args)
 
     args, kwargs = [], {}
@@ -84,7 +84,7 @@ def parse_args(args, line='null', replace_variables=True, from_space='main'):
     for arg in split_args:
         if next_arg_is_value:
             if replace_variables:
-                arg = checkvar(arg, line, from_space)
+                arg = checkvar(arg, line, space)
 
             arg = arg.strip('"')
 
@@ -101,12 +101,12 @@ def parse_args(args, line='null', replace_variables=True, from_space='main'):
                 var, *val = arg.split('=')
 
                 if replace_variables:
-                    val = checkvar(val[0], line, from_space)
+                    val = checkvar(val[0], line, space)
 
                 kwargs[var] = val
             else:
                 if replace_variables:
-                    arg = checkvar(arg, line, from_space)
+                    arg = checkvar(arg, line, space)
 
                 args += [arg]
 
@@ -119,16 +119,16 @@ def load_module(name, on_line='null'):
     for path in paths:
         if name in os.listdir(path):
             with open(path + name) as module:
-                parse_lines(module, to_space=name)
+                parse_lines(module, space=name)
 
             return
 
     exception.throw('module_not_found', f'module not found: {name}', line=on_line)
 
 
-def checkvar(var, on_line, from_space='main'):
+def checkvar(var, on_line, space='main'):
     if var[0] == '&':
-        return namespace.get(var[1:], True, on_line, from_space=from_space)
+        return namespace.get(var[1:], True, on_line, space=space)
 
     return var
 

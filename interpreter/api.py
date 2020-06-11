@@ -17,8 +17,8 @@ bool_vars = {
 
 
 def out(*text, line='null', **kwargs):
-    if 'use_namespace' in kwargs:
-        del kwargs['use_namespace']
+    if 'space' in kwargs:
+        del kwargs['space']
 
     text = ''.join(map(str, text))
 
@@ -27,7 +27,7 @@ def out(*text, line='null', **kwargs):
     # return ' '.join(text)
 
 
-def inp(to_var=None, text=None, line='null', use_namespace=namespace):
+def inp(to_var=None, text=None, line='null', space='main'):
     if to_var is None:
         text = ''
     elif text is None:
@@ -38,71 +38,51 @@ def inp(to_var=None, text=None, line='null', use_namespace=namespace):
     text = input(text)
 
     if to_var is not None:
-        use_namespace.put(to_var, text)
+        namespace.put(to_var, text, space)
 
     return text.replace('"', '\\"')
 
 
-def var(varname, *content, line='null', use_namespace=namespace):
+def var(varname=None, *content, line='null', space='main'):
+    if varname is None:
+        return
+
     if len(content) == 1:
         content = content[0]
 
-    use_namespace.put(varname, content)
+    namespace.put(varname, content, space)
 
 
-def call(func, args=(), kwargs=None, line='null', use_namespace=namespace):
+def call(func, args=(), kwargs=None, line='null', space='main'):
     if kwargs is None:
         kwargs = {}
 
     if callable(func):  # if we have a function object (not it's name)
-        function = func(*args, line=line, use_namespace=use_namespace, **kwargs)
+        function = func(*args, line=line, space=space, **kwargs)
     else:
-        function = getattr(self, func)(*args, line=line, use_namespace=use_namespace, **kwargs)
+        function = getattr(self, func)(*args, line=line, space=space, **kwargs)
 
     return function
 
 
-def add(*args, line='null', use_namespace=namespace):
-    result = sum(map(int, args[1:]))
+def seq(to_var=None, sequence=None, line='null', space='main'):
+    if to_var is None:
+        return
 
-    if args[0].isdigit():
-        result += int(args[0])
-    else:
-        if args[0] != '&':
-            _var = args[0][1:]
-        else:
-            _var = args[0]
-
-        use_namespace.put(_var, result)
-
-    return result
-
-
-def minus(*args, line='null', use_namespace=namespace):
-    result = int(args[1])
-
-    if args[0].isdigit():
-        result = int(args[0]) - result
-    else:
-        use_namespace.put(args[0], result)
-
-    try:
-        for num in args[2:]:
-            result -= num
-    except IndexError:
-        pass
-
-    return result
-
-
-def seq(*sequence, line='null', use_namespace=namespace):
-    sequence = ' '.join(sequence)
+    if sequence is None:
+        sequence = to_var
+        to_var = None
 
     if any([i in string.ascii_letters.replace('e', '') for i in sequence]):
-        return 'error:bad sequence'
+        exception.throw('bad_sequence', f'bad sequence: {sequence}  <-', line=line)
+
+        return
 
     try:
-        return eval(sequence)
+        result = eval(sequence)
+
+        if to_var is not None:
+            namespace.put(to_var, result, space=space)
     except Exception as exc:
         exception.throw('bad_sequence', 'bad sequence:', exc, line=line)
 
@@ -111,12 +91,12 @@ def pass_line(*args, **kwargs):
     return
 
 
-def delvar(*variables, line='null', use_namespace=namespace):
+def delvar(*variables, line='null', space='main'):
     for variable in variables:
-        use_namespace.rm(variable, line=line)
+        namespace.rm(variable, line=line, space=space)
 
 
-def exit_(code=None, reason=None, line='null', use_namespace=namespace):
+def exit_(code=None, reason=None, line='null', space='main'):
     print('\nAborted', '(' + str(reason) + ')' if reason is not None else '')
 
     try:
@@ -125,7 +105,7 @@ def exit_(code=None, reason=None, line='null', use_namespace=namespace):
         sys.exit(1)
 
 
-def set_immortality(value, line='null', use_namespace=namespace):
+def set_immortality(value, line='null', space='main'):
     try:
         exception.EXIT_ON_EXCEPTION = not bool_vars[value]
     except KeyError:
@@ -139,11 +119,9 @@ def get_functions():
         'in': inp,
         'var': var,
         'call': call,
-        'add': add,
-        'min': minus,
         'seq': seq,
         'del': delvar,
         'pass': pass_line,
         'exit': exit_,
-        'setimm': set_immortality,
+        'imm': set_immortality,
     }

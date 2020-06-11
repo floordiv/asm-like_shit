@@ -1,0 +1,14 @@
+imm true
+
+out "out"
+inp
+inp "input with no writing to the var "
+inp smvar "input with writing to the var "
+var
+var smvar
+var smvar "ok"
+seq
+seq "1 + 1"
+seq smvar "(1 + 1) * 2"
+out &smvar
+seq "hello"

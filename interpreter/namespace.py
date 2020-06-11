@@ -29,42 +29,30 @@ class Namespace:
 
         self.variables = {'main': {**init_vars, **kwargs}}
 
-    def get(self, var, throw=True, line='null', from_space=None):
-        var_from_space, var = var_from(var)
-
-        if from_space is not None:
-            var_from_space = from_space
-
+    def get(self, var, throw=True, line='null', space='main'):
         try:
-            return self.variables[var_from_space][var]
+            return self.variables[space][var]
         except KeyError:
             if throw:
-                exception.throw('variable_not_found', f'variable not found: {var_from_space}:{var}', line=line)
+                exception.throw('variable_not_found', f'variable not found: {space}:{var}', line=line)
 
-    def put(self, var, val, to_space=None):
-        space, var = var_from(var)
-
-        if to_space is not None:
-            space = to_space
-
+    def put(self, var, val, space='main'):
         if space not in self.variables:
             self.create_space(space)
 
         self.variables[space][var] = val
 
-    def rm(self, var, line='null'):
-        from_space, var = var_from(var)
-
+    def rm(self, var, line='null', space='main'):
         try:
-            del self.variables[from_space][var]
+            del self.variables[space][var]
         except KeyError:
-            exception.throw('variable_not_found', f'variable not found: {from_space}:{var}', line=line)
+            exception.throw('variable_not_found', f'variable not found: {space}:{var}', line=line)
 
-    def load_variables(self, variables, to_space='main'):
-        self.variables[to_space] = {**self.variables, **variables}
+    def load_variables(self, variables, space='main'):
+        self.variables[space] = {**self.variables, **variables}
 
-    def get_variables(self, from_space='main'):
-        return self.variables[from_space]
+    def get_variables(self, space='main'):
+        return self.variables[space]
 
     def create_space(self, newspace):
         self.variables[newspace] = self.variables['main']
