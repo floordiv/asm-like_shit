@@ -10,4 +10,4 @@ end
 
 func "ok" "bro"
 
-another_func "why" arg2="bro"
+another_func "why" arg2="bro"   ; I can't pass kwarg as a usual arg, like in Python :(

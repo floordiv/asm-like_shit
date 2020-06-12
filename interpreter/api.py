@@ -60,10 +60,24 @@ def call(func, args=(), kwargs=None, line='null', space='main'):
     if kwargs is None:
         kwargs = {}
 
-    if callable(func):  # if we have a function object (not it's name)
-        function = func(*args, line=line, space=space, **kwargs)
-    else:
-        function = getattr(self, func)(*args, line=line, space=space, **kwargs)
+    try:
+
+        if callable(func):  # if we have a function object (not it's name)
+            # I commented a code below, because external modules can take these parameters
+
+            # is_external = namespace.get('external_module', False, line, space)
+            #
+            # if is_external is None:
+            #     kwargs['line'] = line
+            #     kwargs['space'] = space
+
+            function = func(*args, line=line, space=space, **kwargs)
+        else:
+            function = getattr(self, func)(*args, line=line, space=space, **kwargs)
+    except Exception as exc:
+        exception.throw('call_failure', f'failed to call {func} from namespace {space}: {exc}')
+
+        return
 
     return function
 

@@ -1,4 +1,7 @@
 import os
+import sys
+
+from pprint import pprint
 
 import api
 import function
@@ -20,7 +23,13 @@ def parse_line(line, line_index='null', space='main'):
     if func == 'use':
         module_name = line[0]
 
-        load_module(module_name)
+        if module_name[0] == '"':
+            *module_path, module_name = module_name[1:-1].split('/')
+            module_path = '/'.join(module_path)
+
+            load_module(module_name, (module_path,), line_index)
+        else:
+            load_module(module_name, on_line=line_index)
 
         return
 
@@ -116,13 +125,26 @@ def parse_args(args, line='null', replace_variables=True, space='main'):
     return args, kwargs
 
 
-def load_module(name, on_line='null'):
-    paths = ['modules/', './', 'examples/']
-
+def load_module(name, paths=('modules/', './', 'examples/'), on_line='null'):
     for path in paths:
+        if not path.endswith('/'):
+            path += '/'
+
         if name in os.listdir(path):
-            with open(path + name) as module:
-                parse_lines(module, space=name)
+            if name.endswith('.py'):
+                name = name[:-3]  # remove .py in the end
+
+                sys.path.append(path)
+
+                module = __import__(name)
+
+                namespace.create_space(name)
+                namespace.load_variables(module.__dict__, name)
+
+                namespace.put('external_module', True, name)
+            else:
+                with open(path + name) as module:
+                    parse_lines(module, space=name)
 
             return
 
