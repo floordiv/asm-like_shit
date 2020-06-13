@@ -1,9 +1,5 @@
-import os
-import sys
-
-from pprint import pprint
-
 import api
+import importer
 import function
 import exception
 import namespace
@@ -27,9 +23,9 @@ def parse_line(line, line_index='null', space='main'):
             *module_path, module_name = module_name[1:-1].split('/')
             module_path = '/'.join(module_path)
 
-            load_module(module_name, (module_path,), line_index)
+            importer.load_module(parse_lines, module_name, bypath=module_path, on_line=line_index)
         else:
-            load_module(module_name, on_line=line_index)
+            importer.load_module(parse_lines, module_name, on_line=line_index)
 
         return
 
@@ -123,32 +119,6 @@ def parse_args(args, line='null', replace_variables=True, space='main'):
                 args += [arg]
 
     return args, kwargs
-
-
-def load_module(name, paths=('modules/', './', 'examples/'), on_line='null'):
-    for path in paths:
-        if not path.endswith('/'):
-            path += '/'
-
-        if name in os.listdir(path):
-            if name.endswith('.py'):
-                name = name[:-3]  # remove .py in the end
-
-                sys.path.append(path)
-
-                module = __import__(name)
-
-                namespace.create_space(name)
-                namespace.load_variables(module.__dict__, name)
-
-                namespace.put('external_module', True, name)
-            else:
-                with open(path + name) as module:
-                    parse_lines(module, space=name)
-
-            return
-
-    exception.throw('module_not_found', f'module not found: {name}', line=on_line)
 
 
 def checkvar(var, on_line, space='main'):

@@ -4,5 +4,3 @@ inp text "enter something here: "    ; put text from the input to the variable
 out "you entered:" &text
 var some_var "smvar"
 out "Some variable:" some_var
-add & 5 5 5
-out &

@@ -36,9 +36,6 @@ class Namespace:
             return self.variables[space][var]
         except KeyError:
             if throw:
-                # pprint(self.variables)
-                # print(var)
-
                 exception.throw('variable_not_found', f'variable not found: {space}:{var}', line=line)
 
     def put(self, var, val, space='main'):

@@ -1,4 +1,0 @@
-var &add_result 0    ; this is a comment
-add &add_result 5 5  ; this is one more comment
-out add_result       ; wow, code is fully commented
-add &any_var 5 5     ; let's try to add numbers to the non-existing var
