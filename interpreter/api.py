@@ -142,3 +142,9 @@ def get_functions():
         'exit': exit_,
         'imm': set_immortality,
     }
+
+
+def compare(variables):
+    for variable, value in variables.items():
+        if variable not in self.__dict__:
+            self.__dict__[variable] = value
