@@ -129,8 +129,7 @@ def set_immortality(value, line='null', space='main'):
         exception.throw('bad_state', 'unknown value for function "setimm": ' + str(value), line=line)
 
 
-def get_functions():
-    return {
+function_map = {
         'out': out,
         'inp': inp,
         'in': inp,
@@ -141,7 +140,15 @@ def get_functions():
         'pass': pass_line,
         'exit': exit_,
         'imm': set_immortality,
-    }
+}
+
+
+def get_functions():
+    return function_map
+
+
+def addcmd(funcmap):
+    function_map.update(funcmap)
 
 
 def compare(variables):
