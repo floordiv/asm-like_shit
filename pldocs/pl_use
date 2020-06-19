@@ -1,0 +1,10 @@
+to start coding, first read "api_methods"
+
+if you already red, let's start
+
+line has such a view: <method/function> <args> <kwargs> ; <comment>
+<args> examples: arg1 &arg2 "some text!"
+<kwargs> examples: arg1=SomeText! arg2="Some text!" arg3=&some_variable
+
+comments starts from ;
+empty lines will be ignored

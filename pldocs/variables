@@ -1,0 +1,7 @@
+variables should be initialized by command "var <var_name> <value>".
+<value> can be everything you want: another variable, text, link to the function.
+<var_name> is a word (no spaces and special chars), which shouldn't contain a number on a first postion
+
+
+how to pass an existing variable to the function/api method: <function> anyvar1 &anyvar2
+anyvar1 will be passed, as a usual text. But anyvar2 will be taken from namespace (if not found, an error will occur)
